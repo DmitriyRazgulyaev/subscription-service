@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+option go_package = "pkg/proto";
+
+service SubscriptionService {
+  rpc CreateSubscription(CreateSubscriptionRequest) returns (CreateSubscriptionResponse);
+  rpc GetSubscription(GetSubscriptionRequest) returns (GetSubscriptionResponse);
+  rpc UpdateSubscription(UpdateSubscriptionRequest) returns (UpdateSubscriptionResponse);
+  rpc DeleteSubscription(DeleteSubscriptionRequest) returns (DeleteSubscriptionResponse);
+  rpc GetAnalytics(GetAnalyticsRequest) returns (GetAnalyticsResponse);
+}
+
+message Subscription {
+  string id = 1;
+  string name = 2;
+  string startedAt = 3;
+  string expiration = 4;
+  int32 price = 5;
+}
+
+message Period {
+  string start = 1;
+  string end = 2;
+}
+
+message CreateSubscriptionRequest {
+  string id = 1;
+  string name = 2;
+  string startedAt = 3;
+  string expiration = 4;
+  int32 price = 5;
+}
+
+message CreateSubscriptionResponse {
+  Subscription sub = 1;
+}
+
+message GetSubscriptionRequest {
+  string id = 1;
+  string name = 2;
+}
+
+message GetSubscriptionResponse {
+  Subscription sub = 1;
+}
+
+message UpdateSubscriptionRequest {
+  string id = 1;
+  string name = 2;
+  string startedAt = 3;
+  string expiration = 4;
+  int32 price = 5;
+}
+
+message UpdateSubscriptionResponse {
+  Subscription sub = 1;
+}
+
+message DeleteSubscriptionRequest {
+  string id = 1;
+  string name = 2;
+}
+
+message DeleteSubscriptionResponse {
+  bool success = 1;
+}
+
+message GetAnalyticsRequest {
+  string id = 1;
+  Period period = 2;
+}
+
+message GetAnalyticsResponse {
+  repeated Subscription subs = 1;
+  int32 summarySpend = 2;
+}
