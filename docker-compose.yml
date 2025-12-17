@@ -1,0 +1,64 @@
+services:
+  app:
+    build:
+      context: .
+      target: subscriptionService
+    container_name: subscriptionService_app
+    restart: unless-stopped
+    ports:
+      - "50051:50051"
+    env_file:
+      - config/.env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  db:
+    image: postgres:15
+    restart: always
+    container_name: postgresSubscription_container
+    ports:
+      - "5432:5432"
+    env_file:
+      - config/.env
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:5
+    container_name: redisSubscription_container
+    env_file:
+      - ./config/.env
+    volumes:
+      - ./redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      target: migrate
+    container_name: SubscriptionService_migrate
+    command: ["-command", "up"]
+    env_file:
+      - config/.env
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:

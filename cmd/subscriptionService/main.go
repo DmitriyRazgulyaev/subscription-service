@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"subscription-service/internal/app"
 	"subscription-service/internal/config"
+	"subscription-service/pkg/logger"
 	"syscall"
 )
 
@@ -20,7 +21,12 @@ func main() {
 		panic(err)
 	}
 
-	application := app.New(cfg)
+	lo, err := logger.NewLogger(cfg.Environment)
+	if err != nil {
+		panic(err)
+	}
+
+	application := app.New(cfg, *lo)
 
 	log.Printf("starting server at :%d", cfg.GrpcPort)
 	go application.MustRun()

@@ -1,24 +1,99 @@
 package grpcApp
 
 import (
+	"context"
 	"fmt"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"net"
+	"subscription-service/internal/resilience"
+	"subscription-service/internal/service"
 	v1 "subscription-service/internal/transport/grpc/v1"
+	"subscription-service/pkg/logger"
+	"time"
+)
+
+const (
+	timeoutValue = time.Second * 10
+	maxRetries   = 3
+	baseDelay    = time.Second
+	maxDelay     = time.Second * 10
 )
 
 type App struct {
 	grpcServer *grpc.Server
 	port       int
+	repo       service.SubscriptionRepository
 }
 
-func NewApp(service v1.SubscriptionService, port int) *App {
-	server := grpc.NewServer()
+func LoggingUnaryServerInterceptor(logger *logger.Logger) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+		logger.Info(fmt.Sprintf("method: %s", info.FullMethod), zap.Any("request", req))
+		resp, err = handler(ctx, req)
+
+		if err != nil {
+			logger.Error(
+				fmt.Sprintf("method: %s", info.FullMethod),
+				zap.Error(err),
+			)
+		} else {
+			logger.Info(
+				fmt.Sprintf("method: %s", info.FullMethod),
+				zap.Any("response", resp),
+			)
+		}
+
+		return resp, err
+	}
+}
+
+func DeadLetterQueueInterceptor(dlq *resilience.DeadLetterQueue) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+		resp, err = handler(ctx, req)
+		if err != nil {
+			dlq.Add(req)
+		}
+
+		return resp, err
+	}
+}
+
+func RetryInterceptor() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+		resp, err = resilience.RetryOperation(ctx, func(ctx context.Context) (interface{}, error) {
+			return handler(ctx, req)
+		},
+			maxRetries,
+			baseDelay,
+			maxDelay,
+		)
+		return resp, err
+	}
+
+}
+
+func TimeoutInterceptor() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+
+		resp, err = resilience.Timeout(ctx, func(ctx context.Context) (interface{}, error) {
+			return handler(ctx, req)
+		}, timeoutValue)
+		return resp, err
+	}
+}
+
+func NewApp(service v1.SubscriptionService, port int, repo service.SubscriptionRepository, logger logger.Logger) *App {
+	server := grpc.NewServer(grpc.ChainUnaryInterceptor(
+		LoggingUnaryServerInterceptor(&logger),
+		RetryInterceptor(),
+		TimeoutInterceptor(),
+	))
 	v1.Register(server, service)
 
 	return &App{
 		grpcServer: server,
 		port:       port,
+		repo:       repo,
 	}
 }
 
@@ -44,4 +119,5 @@ func (a *App) Run() error {
 
 func (a *App) GracefulStop() {
 	a.grpcServer.GracefulStop()
+	a.repo.Close()
 }

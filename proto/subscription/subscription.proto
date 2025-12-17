@@ -18,6 +18,24 @@ message Subscription {
   int32 price = 5;
 }
 
+message MonthSpent {
+  string month = 1;
+  int32 totalMonthSpent = 2;
+  repeated Subscription subs = 3;
+}
+
+message Year {
+  string year = 1;
+  int32 totalSpent = 2;
+  repeated MonthSpent months = 3;
+}
+
+message Analytics {
+  int32 totalSpent = 1;
+  map<string, Year> years = 2;
+  MonthSpent nextMonthSpends = 3;
+}
+
 message Period {
   string start = 1;
   string end = 2;
@@ -46,10 +64,11 @@ message GetSubscriptionResponse {
 
 message UpdateSubscriptionRequest {
   string id = 1;
-  string name = 2;
-  string startedAt = 3;
-  string expiration = 4;
-  int32 price = 5;
+  string oldName = 2;
+  string name = 3;
+  string startedAt = 4;
+  string expiration = 5;
+  int32 price = 6;
 }
 
 message UpdateSubscriptionResponse {
@@ -71,6 +90,5 @@ message GetAnalyticsRequest {
 }
 
 message GetAnalyticsResponse {
-  repeated Subscription subs = 1;
-  int32 summarySpend = 2;
+  Analytics analytics = 1;
 }
