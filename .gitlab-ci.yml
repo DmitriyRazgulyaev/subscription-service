@@ -5,14 +5,8 @@ stages:
 
 lint:
   stage: lint
-  image: golang:1.25.4-alpine
-  before_script:
-    - apk add --no-cache git curl build-base
-    - export GOLANGCI_LINT_BUILD_FROM_SOURCE=1
-    - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
-      | sh -s -- -b /usr/local/bin v1.61.0
+  image: golangci/golangci-lint:v2.4-alpine
   script:
-    - golangci-lint version
     - golangci-lint run -v
   allow_failure: false
 
