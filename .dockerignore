@@ -1,0 +1,14 @@
+# Documentation
+README.md
+
+# Config
+config/.env.example
+
+# Docker
+Dockerfile
+docker-compose.yaml
+.dockerignore
+
+# Git
+.git
+.gitignore
