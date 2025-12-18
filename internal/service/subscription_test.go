@@ -41,11 +41,16 @@ type deleteSubscriptionTestCase struct {
 }
 
 type StubSubscriptionRepository struct {
-	CreateFunc       func(ctx context.Context, subscription *pb.Subscription) (*pb.Subscription, error)
-	SelectByNameFunc func(ctx context.Context, id, name string) (*pb.Subscription, error)
-	UpdateFunc       func(ctx context.Context, subscription *pb.Subscription, oldName string) (*pb.Subscription, error)
-	DeleteFunc       func(ctx context.Context, id, name string) (bool, error)
-	SelectAllFunc    func(ctx context.Context, id string, period *pb.Period) ([]*pb.Subscription, error)
+	CreateFunc               func(ctx context.Context, subscription *pb.Subscription) (*pb.Subscription, error)
+	SelectByNameFunc         func(ctx context.Context, id, name string) (*pb.Subscription, error)
+	UpdateFunc               func(ctx context.Context, subscription *pb.Subscription, oldName string) (*pb.Subscription, error)
+	DeleteFunc               func(ctx context.Context, id, name string) (bool, error)
+	SelectAllFunc            func(ctx context.Context, id string, period *pb.Period) ([]*pb.Subscription, error)
+	SelectByExpiringDateFunc func(ctx context.Context, date string) ([]*pb.Subscription, error)
+}
+
+func (ssr *StubSubscriptionRepository) SelectByExpiringDate(ctx context.Context, date string) ([]*pb.Subscription, error) {
+	return ssr.SelectByExpiringDateFunc(ctx, date)
 }
 
 func (ssr *StubSubscriptionRepository) Create(ctx context.Context, subscription *pb.Subscription) (*pb.Subscription, error) {

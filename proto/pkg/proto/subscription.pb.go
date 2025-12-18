@@ -865,6 +865,95 @@ func (x *GetAnalyticsResponse) GetAnalytics() *Analytics {
 	return nil
 }
 
+// date format 2006-01-02
+type GetExpiringSubscriptionsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Date          string                 `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetExpiringSubscriptionsRequest) Reset() {
+	*x = GetExpiringSubscriptionsRequest{}
+	mi := &file_subscription_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetExpiringSubscriptionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetExpiringSubscriptionsRequest) ProtoMessage() {}
+
+func (x *GetExpiringSubscriptionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_subscription_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetExpiringSubscriptionsRequest.ProtoReflect.Descriptor instead.
+func (*GetExpiringSubscriptionsRequest) Descriptor() ([]byte, []int) {
+	return file_subscription_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetExpiringSubscriptionsRequest) GetDate() string {
+	if x != nil {
+		return x.Date
+	}
+	return ""
+}
+
+type GetExpiringSubscriptionsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Subs          []*Subscription        `protobuf:"bytes,1,rep,name=subs,proto3" json:"subs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetExpiringSubscriptionsResponse) Reset() {
+	*x = GetExpiringSubscriptionsResponse{}
+	mi := &file_subscription_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetExpiringSubscriptionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetExpiringSubscriptionsResponse) ProtoMessage() {}
+
+func (x *GetExpiringSubscriptionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_subscription_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetExpiringSubscriptionsResponse.ProtoReflect.Descriptor instead.
+func (*GetExpiringSubscriptionsResponse) Descriptor() ([]byte, []int) {
+	return file_subscription_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetExpiringSubscriptionsResponse) GetSubs() []*Subscription {
+	if x != nil {
+		return x.Subs
+	}
+	return nil
+}
+
 var File_subscription_proto protoreflect.FileDescriptor
 
 const file_subscription_proto_rawDesc = "" +
@@ -938,13 +1027,18 @@ const file_subscription_proto_rawDesc = "" +
 	"\x06period\x18\x02 \x01(\v2\a.PeriodR\x06period\"@\n" +
 	"\x14GetAnalyticsResponse\x12(\n" +
 	"\tanalytics\x18\x01 \x01(\v2\n" +
-	".AnalyticsR\tanalytics2\x85\x03\n" +
+	".AnalyticsR\tanalytics\"5\n" +
+	"\x1fGetExpiringSubscriptionsRequest\x12\x12\n" +
+	"\x04date\x18\x01 \x01(\tR\x04date\"E\n" +
+	" GetExpiringSubscriptionsResponse\x12!\n" +
+	"\x04subs\x18\x01 \x03(\v2\r.SubscriptionR\x04subs2\xe6\x03\n" +
 	"\x13SubscriptionService\x12M\n" +
 	"\x12CreateSubscription\x12\x1a.CreateSubscriptionRequest\x1a\x1b.CreateSubscriptionResponse\x12D\n" +
 	"\x0fGetSubscription\x12\x17.GetSubscriptionRequest\x1a\x18.GetSubscriptionResponse\x12M\n" +
 	"\x12UpdateSubscription\x12\x1a.UpdateSubscriptionRequest\x1a\x1b.UpdateSubscriptionResponse\x12M\n" +
 	"\x12DeleteSubscription\x12\x1a.DeleteSubscriptionRequest\x1a\x1b.DeleteSubscriptionResponse\x12;\n" +
-	"\fGetAnalytics\x12\x14.GetAnalyticsRequest\x1a\x15.GetAnalyticsResponseB\vZ\tpkg/protob\x06proto3"
+	"\fGetAnalytics\x12\x14.GetAnalyticsRequest\x1a\x15.GetAnalyticsResponse\x12_\n" +
+	"\x18GetExpiringSubscriptions\x12 .GetExpiringSubscriptionsRequest\x1a!.GetExpiringSubscriptionsResponseB\vZ\tpkg/protob\x06proto3"
 
 var (
 	file_subscription_proto_rawDescOnce sync.Once
@@ -958,51 +1052,56 @@ func file_subscription_proto_rawDescGZIP() []byte {
 	return file_subscription_proto_rawDescData
 }
 
-var file_subscription_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_subscription_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_subscription_proto_goTypes = []any{
-	(*Subscription)(nil),               // 0: Subscription
-	(*MonthSpent)(nil),                 // 1: MonthSpent
-	(*Year)(nil),                       // 2: Year
-	(*Analytics)(nil),                  // 3: Analytics
-	(*Period)(nil),                     // 4: Period
-	(*CreateSubscriptionRequest)(nil),  // 5: CreateSubscriptionRequest
-	(*CreateSubscriptionResponse)(nil), // 6: CreateSubscriptionResponse
-	(*GetSubscriptionRequest)(nil),     // 7: GetSubscriptionRequest
-	(*GetSubscriptionResponse)(nil),    // 8: GetSubscriptionResponse
-	(*UpdateSubscriptionRequest)(nil),  // 9: UpdateSubscriptionRequest
-	(*UpdateSubscriptionResponse)(nil), // 10: UpdateSubscriptionResponse
-	(*DeleteSubscriptionRequest)(nil),  // 11: DeleteSubscriptionRequest
-	(*DeleteSubscriptionResponse)(nil), // 12: DeleteSubscriptionResponse
-	(*GetAnalyticsRequest)(nil),        // 13: GetAnalyticsRequest
-	(*GetAnalyticsResponse)(nil),       // 14: GetAnalyticsResponse
-	nil,                                // 15: Analytics.YearsEntry
+	(*Subscription)(nil),                     // 0: Subscription
+	(*MonthSpent)(nil),                       // 1: MonthSpent
+	(*Year)(nil),                             // 2: Year
+	(*Analytics)(nil),                        // 3: Analytics
+	(*Period)(nil),                           // 4: Period
+	(*CreateSubscriptionRequest)(nil),        // 5: CreateSubscriptionRequest
+	(*CreateSubscriptionResponse)(nil),       // 6: CreateSubscriptionResponse
+	(*GetSubscriptionRequest)(nil),           // 7: GetSubscriptionRequest
+	(*GetSubscriptionResponse)(nil),          // 8: GetSubscriptionResponse
+	(*UpdateSubscriptionRequest)(nil),        // 9: UpdateSubscriptionRequest
+	(*UpdateSubscriptionResponse)(nil),       // 10: UpdateSubscriptionResponse
+	(*DeleteSubscriptionRequest)(nil),        // 11: DeleteSubscriptionRequest
+	(*DeleteSubscriptionResponse)(nil),       // 12: DeleteSubscriptionResponse
+	(*GetAnalyticsRequest)(nil),              // 13: GetAnalyticsRequest
+	(*GetAnalyticsResponse)(nil),             // 14: GetAnalyticsResponse
+	(*GetExpiringSubscriptionsRequest)(nil),  // 15: GetExpiringSubscriptionsRequest
+	(*GetExpiringSubscriptionsResponse)(nil), // 16: GetExpiringSubscriptionsResponse
+	nil,                                      // 17: Analytics.YearsEntry
 }
 var file_subscription_proto_depIdxs = []int32{
 	0,  // 0: MonthSpent.subs:type_name -> Subscription
 	1,  // 1: Year.months:type_name -> MonthSpent
-	15, // 2: Analytics.years:type_name -> Analytics.YearsEntry
+	17, // 2: Analytics.years:type_name -> Analytics.YearsEntry
 	1,  // 3: Analytics.nextMonthSpends:type_name -> MonthSpent
 	0,  // 4: CreateSubscriptionResponse.sub:type_name -> Subscription
 	0,  // 5: GetSubscriptionResponse.sub:type_name -> Subscription
 	0,  // 6: UpdateSubscriptionResponse.sub:type_name -> Subscription
 	4,  // 7: GetAnalyticsRequest.period:type_name -> Period
 	3,  // 8: GetAnalyticsResponse.analytics:type_name -> Analytics
-	2,  // 9: Analytics.YearsEntry.value:type_name -> Year
-	5,  // 10: SubscriptionService.CreateSubscription:input_type -> CreateSubscriptionRequest
-	7,  // 11: SubscriptionService.GetSubscription:input_type -> GetSubscriptionRequest
-	9,  // 12: SubscriptionService.UpdateSubscription:input_type -> UpdateSubscriptionRequest
-	11, // 13: SubscriptionService.DeleteSubscription:input_type -> DeleteSubscriptionRequest
-	13, // 14: SubscriptionService.GetAnalytics:input_type -> GetAnalyticsRequest
-	6,  // 15: SubscriptionService.CreateSubscription:output_type -> CreateSubscriptionResponse
-	8,  // 16: SubscriptionService.GetSubscription:output_type -> GetSubscriptionResponse
-	10, // 17: SubscriptionService.UpdateSubscription:output_type -> UpdateSubscriptionResponse
-	12, // 18: SubscriptionService.DeleteSubscription:output_type -> DeleteSubscriptionResponse
-	14, // 19: SubscriptionService.GetAnalytics:output_type -> GetAnalyticsResponse
-	15, // [15:20] is the sub-list for method output_type
-	10, // [10:15] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	0,  // 9: GetExpiringSubscriptionsResponse.subs:type_name -> Subscription
+	2,  // 10: Analytics.YearsEntry.value:type_name -> Year
+	5,  // 11: SubscriptionService.CreateSubscription:input_type -> CreateSubscriptionRequest
+	7,  // 12: SubscriptionService.GetSubscription:input_type -> GetSubscriptionRequest
+	9,  // 13: SubscriptionService.UpdateSubscription:input_type -> UpdateSubscriptionRequest
+	11, // 14: SubscriptionService.DeleteSubscription:input_type -> DeleteSubscriptionRequest
+	13, // 15: SubscriptionService.GetAnalytics:input_type -> GetAnalyticsRequest
+	15, // 16: SubscriptionService.GetExpiringSubscriptions:input_type -> GetExpiringSubscriptionsRequest
+	6,  // 17: SubscriptionService.CreateSubscription:output_type -> CreateSubscriptionResponse
+	8,  // 18: SubscriptionService.GetSubscription:output_type -> GetSubscriptionResponse
+	10, // 19: SubscriptionService.UpdateSubscription:output_type -> UpdateSubscriptionResponse
+	12, // 20: SubscriptionService.DeleteSubscription:output_type -> DeleteSubscriptionResponse
+	14, // 21: SubscriptionService.GetAnalytics:output_type -> GetAnalyticsResponse
+	16, // 22: SubscriptionService.GetExpiringSubscriptions:output_type -> GetExpiringSubscriptionsResponse
+	17, // [17:23] is the sub-list for method output_type
+	11, // [11:17] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_subscription_proto_init() }
@@ -1016,7 +1115,7 @@ func file_subscription_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_subscription_proto_rawDesc), len(file_subscription_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

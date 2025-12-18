@@ -11,6 +11,7 @@ import (
 type SubscriptionRepository interface {
 	Create(ctx context.Context, subscription *pb.Subscription) (*pb.Subscription, error)
 	SelectByName(ctx context.Context, id, name string) (*pb.Subscription, error)
+	SelectByExpiringDate(ctx context.Context, date string) ([]*pb.Subscription, error)
 	Update(ctx context.Context, subscription *pb.Subscription, oldName string) (*pb.Subscription, error)
 	Delete(ctx context.Context, id, name string) (bool, error)
 	SelectAll(ctx context.Context, id string, period *pb.Period) ([]*pb.Subscription, error)
@@ -184,4 +185,18 @@ func initAnalytics(start, end time.Time) *pb.Analytics {
 	}
 
 	return analytics
+}
+
+func (ss *SubscriptionService) GetSubscriptionsByDate(ctx context.Context, date string) ([]*pb.Subscription, error) {
+	_, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		return nil, err
+	}
+
+	subs, err := ss.subRepo.SelectByExpiringDate(ctx, date)
+	if err != nil {
+		return nil, err
+	}
+
+	return subs, nil
 }

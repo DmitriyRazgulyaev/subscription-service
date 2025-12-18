@@ -51,11 +51,16 @@ type getAnalyticsTestCase struct {
 }
 
 type StubSubscriptionService struct {
-	CreateFunc       func(ctx context.Context, id, name, startedAt, expiration string, price int) (*pb.Subscription, error)
-	GetFunc          func(ctx context.Context, id, name string) (*pb.Subscription, error)
-	UpdateFunc       func(ctx context.Context, id, oldName, name, startedAt, expiration string, price int) (*pb.Subscription, error)
-	DeleteFunc       func(ctx context.Context, id, name string) (bool, error)
-	GetAnalyticsFunc func(ctx context.Context, id string, period *pb.Period) (*pb.Analytics, error)
+	CreateFunc                 func(ctx context.Context, id, name, startedAt, expiration string, price int) (*pb.Subscription, error)
+	GetFunc                    func(ctx context.Context, id, name string) (*pb.Subscription, error)
+	UpdateFunc                 func(ctx context.Context, id, oldName, name, startedAt, expiration string, price int) (*pb.Subscription, error)
+	DeleteFunc                 func(ctx context.Context, id, name string) (bool, error)
+	GetAnalyticsFunc           func(ctx context.Context, id string, period *pb.Period) (*pb.Analytics, error)
+	GetSubscriptionsByDateFunc func(ctx context.Context, date string) ([]*pb.Subscription, error)
+}
+
+func (scs *StubSubscriptionService) GetSubscriptionsByDate(ctx context.Context, date string) ([]*pb.Subscription, error) {
+	return scs.GetSubscriptionsByDateFunc(ctx, date)
 }
 
 func (scs *StubSubscriptionService) CreateSubscription(ctx context.Context, id, name, startedAt, expiration string, price int) (*pb.Subscription, error) {

@@ -99,7 +99,7 @@ func (rr *RedisRepository) SelectByName(ctx context.Context, id, name string) (*
 	return sub, nil
 }
 
-func (rr *RedisRepository) Update(ctx context.Context, subscription *pb.Subscription) (*pb.Subscription, error) {
+func (rr *RedisRepository) Update(ctx context.Context, subscription *pb.Subscription, oldName string) (*pb.Subscription, error) {
 	updatedSub, err := rr.Create(ctx, subscription)
 	if err != nil {
 		return nil, err
@@ -122,6 +122,10 @@ func (rr *RedisRepository) Delete(ctx context.Context, id, name string) (bool, e
 }
 
 func (rr *RedisRepository) SelectAll(ctx context.Context, id string, period *pb.Period) ([]*pb.Subscription, error) {
+	return nil, nil
+}
+
+func (rr *RedisRepository) SelectByExpiringDate(ctx context.Context, date string) ([]*pb.Subscription, error) {
 	return nil, nil
 }
 

@@ -31,6 +31,7 @@ type SubscriptionService interface {
 	UpdateSubscription(ctx context.Context, id, oldName, name, startedAt, expiration string, price int) (*pb.Subscription, error)
 	DeleteSubscription(ctx context.Context, id, name string) (bool, error)
 	GetAnalytics(ctx context.Context, id string, period *pb.Period) (*pb.Analytics, error)
+	GetSubscriptionsByDate(ctx context.Context, date string) ([]*pb.Subscription, error)
 }
 
 func Register(grpcServer *grpc.Server, service SubscriptionService) {
@@ -230,4 +231,30 @@ func (ss *SubscriptionServer) GetAnalytics(ctx context.Context, req *pb.GetAnaly
 	}
 
 	return &pb.GetAnalyticsResponse{Analytics: analytics}, nil
+}
+
+func (ss *SubscriptionServer) GetExpiringSubscriptions(ctx context.Context, req *pb.GetExpiringSubscriptionsRequest) (*pb.GetExpiringSubscriptionsResponse, error) {
+	if req.GetDate() == "" {
+		return nil, status.Error(codes.InvalidArgument, ErrEmptyExpiration.Error())
+	}
+
+	subs, err := ss.subService.GetSubscriptionsByDate(ctx, req.GetDate())
+	if err != nil {
+		switch {
+		case errors.Is(err, postgresRepository.ErrDBUnavailable):
+			return nil, status.Error(codes.Unavailable, err.Error())
+		case errors.Is(err, postgresRepository.ErrNotFound):
+			return nil, status.Error(codes.NotFound, err.Error())
+		case errors.Is(err, postgresRepository.ErrInvalidArgument):
+			return nil, status.Error(codes.InvalidArgument, err.Error())
+		case errors.Is(err, context.DeadlineExceeded):
+			return nil, status.Error(codes.DeadlineExceeded, err.Error())
+		case errors.Is(err, context.Canceled):
+			return nil, status.Error(codes.Canceled, err.Error())
+		default:
+			return nil, status.Error(codes.Internal, err.Error())
+		}
+	}
+
+	return &pb.GetExpiringSubscriptionsResponse{Subs: subs}, nil
 }

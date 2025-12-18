@@ -113,7 +113,15 @@ func (cdr *CachedDbRepository) Delete(ctx context.Context, id, name string) (boo
 func (cdr *CachedDbRepository) SelectAll(ctx context.Context, id string, period *pb.Period) ([]*pb.Subscription, error) {
 	subs, err := cdr.dbRepo.SelectAll(ctx, id, period)
 	if err != nil {
-		log.Println("selectAll: ", err)
+		return nil, err
+	}
+
+	return subs, nil
+}
+
+func (cdr *CachedDbRepository) SelectByExpiringDate(ctx context.Context, date string) ([]*pb.Subscription, error) {
+	subs, err := cdr.dbRepo.SelectByExpiringDate(ctx, date)
+	if err != nil {
 		return nil, err
 	}
 

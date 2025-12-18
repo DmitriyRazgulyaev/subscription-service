@@ -3,13 +3,17 @@ package grpcApp
 import (
 	"context"
 	"fmt"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"net"
+	"net/http"
 	"subscription-service/internal/resilience"
 	"subscription-service/internal/service"
 	v1 "subscription-service/internal/transport/grpc/v1"
 	"subscription-service/pkg/logger"
+	"subscription-service/proto/pkg/proto"
 	"time"
 )
 
@@ -23,6 +27,8 @@ const (
 type App struct {
 	grpcServer *grpc.Server
 	port       int
+	srv        http.Server
+	logger     *logger.Logger
 	repo       service.SubscriptionRepository
 }
 
@@ -94,6 +100,26 @@ func NewApp(service v1.SubscriptionService, port int, repo service.SubscriptionR
 		grpcServer: server,
 		port:       port,
 		repo:       repo,
+		logger:     &logger,
+	}
+}
+
+func (a *App) RunRest(ctx context.Context, grpcPort, gatewayPort int) {
+	ctxWithCancel, cancel := context.WithCancel(ctx)
+	defer cancel()
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	err := proto.RegisterSubscriptionServiceHandlerFromEndpoint(ctxWithCancel, mux, fmt.Sprintf("localhost:%d", grpcPort), opts)
+	if err != nil {
+		panic(err)
+	}
+	a.srv = http.Server{
+		Handler: mux,
+		Addr:    fmt.Sprintf(":%d", gatewayPort),
+	}
+	a.logger.Info(fmt.Sprintf("starting grpc-gateway at %d", gatewayPort))
+	if err := a.srv.ListenAndServe(); err != nil {
+		panic(err)
 	}
 }
 
@@ -117,7 +143,11 @@ func (a *App) Run() error {
 	return nil
 }
 
-func (a *App) GracefulStop() {
+func (a *App) GracefulStop(ctx context.Context) {
+	err := a.srv.Shutdown(ctx)
+	if err != nil {
+		panic(err)
+	}
 	a.grpcServer.GracefulStop()
 	a.repo.Close()
 }

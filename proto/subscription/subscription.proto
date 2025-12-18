@@ -8,6 +8,7 @@ service SubscriptionService {
   rpc UpdateSubscription(UpdateSubscriptionRequest) returns (UpdateSubscriptionResponse);
   rpc DeleteSubscription(DeleteSubscriptionRequest) returns (DeleteSubscriptionResponse);
   rpc GetAnalytics(GetAnalyticsRequest) returns (GetAnalyticsResponse);
+  rpc GetExpiringSubscriptions(GetExpiringSubscriptionsRequest) returns (GetExpiringSubscriptionsResponse);
 }
 
 message Subscription {
@@ -91,4 +92,14 @@ message GetAnalyticsRequest {
 
 message GetAnalyticsResponse {
   Analytics analytics = 1;
+}
+
+// date format 2006-01-02
+message GetExpiringSubscriptionsRequest {
+  string date = 1;
+}
+
+
+message GetExpiringSubscriptionsResponse {
+  repeated Subscription subs = 1;
 }

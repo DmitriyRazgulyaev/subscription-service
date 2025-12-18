@@ -315,6 +315,81 @@ func (pr *PostgresRepository) SelectAll(ctx context.Context, id string, period *
 	return subs, nil
 }
 
+func (pr *PostgresRepository) SelectByExpiringDate(ctx context.Context, date string) ([]*pb.Subscription, error) {
+	conn, err := pr.pool.Acquire(ctx)
+	if err != nil {
+		return nil, ErrDBUnavailable
+	}
+
+	rows, err := conn.Query(ctx, "select * from subscriptions where expire = $1", date)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			return nil, ErrUnknown
+		}
+		if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
+			return nil, ErrDBUnavailable
+		}
+	}
+	defer rows.Close()
+	var subs []*pb.Subscription
+	for rows.Next() {
+		var sub pb.Subscription
+		var startedAt, expiration time.Time
+		err = rows.Scan(&sub.Id, &sub.Name, &startedAt, &expiration, &sub.Price)
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return nil, ErrNotFound
+			}
+
+			var pgErr *pgconn.PgError
+			if errors.As(err, &pgErr) {
+				switch pgErr.Code {
+				case pgerrcode.InvalidTextRepresentation:
+					return nil, ErrInvalidArgument
+				}
+				return nil, ErrUnknown
+			}
+
+			if errors.Is(err, context.DeadlineExceeded) {
+				return nil, context.DeadlineExceeded
+			}
+			if errors.Is(err, context.Canceled) {
+				return nil, context.Canceled
+			}
+
+			return nil, ErrUnknown
+		}
+
+		sub.StartedAt = startedAt.Format("2006-01-02")
+		sub.Expiration = expiration.Format("2006-01-02")
+
+		subs = append(subs, &sub)
+	}
+	if err := rows.Err(); err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			return nil, ErrUnknown
+		}
+
+		if errors.Is(err, context.DeadlineExceeded) {
+			return nil, context.DeadlineExceeded
+		}
+
+		if errors.Is(err, context.Canceled) {
+			return nil, context.Canceled
+		}
+
+		return nil, ErrUnknown
+	}
+	if len(subs) == 0 {
+		return nil, ErrNotFound
+	}
+
+	return subs, nil
+
+}
+
 func (pr *PostgresRepository) Close() {
 	pr.pool.Close()
 }
