@@ -8,6 +8,7 @@ service SubscriptionService {
   rpc UpdateSubscription(UpdateSubscriptionRequest) returns (UpdateSubscriptionResponse);
   rpc DeleteSubscription(DeleteSubscriptionRequest) returns (DeleteSubscriptionResponse);
   rpc GetAnalytics(GetAnalyticsRequest) returns (GetAnalyticsResponse);
+  rpc GetExpiringSubscriptions(GetExpiringSubscriptionsRequest) returns (GetExpiringSubscriptionsResponse);
 }
 
 message Subscription {
@@ -16,6 +17,24 @@ message Subscription {
   string startedAt = 3;
   string expiration = 4;
   int32 price = 5;
+}
+
+message MonthSpent {
+  string month = 1;
+  int32 totalMonthSpent = 2;
+  repeated Subscription subs = 3;
+}
+
+message Year {
+  string year = 1;
+  int32 totalSpent = 2;
+  repeated MonthSpent months = 3;
+}
+
+message Analytics {
+  int32 totalSpent = 1;
+  map<string, Year> years = 2;
+  MonthSpent nextMonthSpends = 3;
 }
 
 message Period {
@@ -46,10 +65,11 @@ message GetSubscriptionResponse {
 
 message UpdateSubscriptionRequest {
   string id = 1;
-  string name = 2;
-  string startedAt = 3;
-  string expiration = 4;
-  int32 price = 5;
+  string oldName = 2;
+  string name = 3;
+  string startedAt = 4;
+  string expiration = 5;
+  int32 price = 6;
 }
 
 message UpdateSubscriptionResponse {
@@ -71,6 +91,15 @@ message GetAnalyticsRequest {
 }
 
 message GetAnalyticsResponse {
+  Analytics analytics = 1;
+}
+
+// date format 2006-01-02
+message GetExpiringSubscriptionsRequest {
+  string date = 1;
+}
+
+
+message GetExpiringSubscriptionsResponse {
   repeated Subscription subs = 1;
-  int32 summarySpend = 2;
 }

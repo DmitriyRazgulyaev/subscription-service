@@ -19,11 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SubscriptionService_CreateSubscription_FullMethodName = "/SubscriptionService/CreateSubscription"
-	SubscriptionService_GetSubscription_FullMethodName    = "/SubscriptionService/GetSubscription"
-	SubscriptionService_UpdateSubscription_FullMethodName = "/SubscriptionService/UpdateSubscription"
-	SubscriptionService_DeleteSubscription_FullMethodName = "/SubscriptionService/DeleteSubscription"
-	SubscriptionService_GetAnalytics_FullMethodName       = "/SubscriptionService/GetAnalytics"
+	SubscriptionService_CreateSubscription_FullMethodName       = "/SubscriptionService/CreateSubscription"
+	SubscriptionService_GetSubscription_FullMethodName          = "/SubscriptionService/GetSubscription"
+	SubscriptionService_UpdateSubscription_FullMethodName       = "/SubscriptionService/UpdateSubscription"
+	SubscriptionService_DeleteSubscription_FullMethodName       = "/SubscriptionService/DeleteSubscription"
+	SubscriptionService_GetAnalytics_FullMethodName             = "/SubscriptionService/GetAnalytics"
+	SubscriptionService_GetExpiringSubscriptions_FullMethodName = "/SubscriptionService/GetExpiringSubscriptions"
 )
 
 // SubscriptionServiceClient is the client API for SubscriptionService service.
@@ -35,6 +36,7 @@ type SubscriptionServiceClient interface {
 	UpdateSubscription(ctx context.Context, in *UpdateSubscriptionRequest, opts ...grpc.CallOption) (*UpdateSubscriptionResponse, error)
 	DeleteSubscription(ctx context.Context, in *DeleteSubscriptionRequest, opts ...grpc.CallOption) (*DeleteSubscriptionResponse, error)
 	GetAnalytics(ctx context.Context, in *GetAnalyticsRequest, opts ...grpc.CallOption) (*GetAnalyticsResponse, error)
+	GetExpiringSubscriptions(ctx context.Context, in *GetExpiringSubscriptionsRequest, opts ...grpc.CallOption) (*GetExpiringSubscriptionsResponse, error)
 }
 
 type subscriptionServiceClient struct {
@@ -95,6 +97,16 @@ func (c *subscriptionServiceClient) GetAnalytics(ctx context.Context, in *GetAna
 	return out, nil
 }
 
+func (c *subscriptionServiceClient) GetExpiringSubscriptions(ctx context.Context, in *GetExpiringSubscriptionsRequest, opts ...grpc.CallOption) (*GetExpiringSubscriptionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetExpiringSubscriptionsResponse)
+	err := c.cc.Invoke(ctx, SubscriptionService_GetExpiringSubscriptions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SubscriptionServiceServer is the server API for SubscriptionService service.
 // All implementations must embed UnimplementedSubscriptionServiceServer
 // for forward compatibility.
@@ -104,6 +116,7 @@ type SubscriptionServiceServer interface {
 	UpdateSubscription(context.Context, *UpdateSubscriptionRequest) (*UpdateSubscriptionResponse, error)
 	DeleteSubscription(context.Context, *DeleteSubscriptionRequest) (*DeleteSubscriptionResponse, error)
 	GetAnalytics(context.Context, *GetAnalyticsRequest) (*GetAnalyticsResponse, error)
+	GetExpiringSubscriptions(context.Context, *GetExpiringSubscriptionsRequest) (*GetExpiringSubscriptionsResponse, error)
 	mustEmbedUnimplementedSubscriptionServiceServer()
 }
 
@@ -128,6 +141,9 @@ func (UnimplementedSubscriptionServiceServer) DeleteSubscription(context.Context
 }
 func (UnimplementedSubscriptionServiceServer) GetAnalytics(context.Context, *GetAnalyticsRequest) (*GetAnalyticsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAnalytics not implemented")
+}
+func (UnimplementedSubscriptionServiceServer) GetExpiringSubscriptions(context.Context, *GetExpiringSubscriptionsRequest) (*GetExpiringSubscriptionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetExpiringSubscriptions not implemented")
 }
 func (UnimplementedSubscriptionServiceServer) mustEmbedUnimplementedSubscriptionServiceServer() {}
 func (UnimplementedSubscriptionServiceServer) testEmbeddedByValue()                             {}
@@ -240,6 +256,24 @@ func _SubscriptionService_GetAnalytics_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SubscriptionService_GetExpiringSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetExpiringSubscriptionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SubscriptionServiceServer).GetExpiringSubscriptions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SubscriptionService_GetExpiringSubscriptions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SubscriptionServiceServer).GetExpiringSubscriptions(ctx, req.(*GetExpiringSubscriptionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SubscriptionService_ServiceDesc is the grpc.ServiceDesc for SubscriptionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -266,6 +300,10 @@ var SubscriptionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAnalytics",
 			Handler:    _SubscriptionService_GetAnalytics_Handler,
+		},
+		{
+			MethodName: "GetExpiringSubscriptions",
+			Handler:    _SubscriptionService_GetExpiringSubscriptions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

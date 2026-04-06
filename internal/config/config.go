@@ -8,6 +8,7 @@ import (
 type Config struct {
 	Environment string `env:"ENV" env-default:"development"`
 	GrpcPort    int    `env:"GRPC_PORT" env-default:"50051"`
+	GatewayPort int    `env:"GATEWAY_PORT" env-default:"8080"`
 
 	PostgresVersion  int    `env:"POSTGRES_VERSION" env-default:"15"`
 	PostgresDb       string `env:"POSTGRES_DB" env-default:"postgres"`
